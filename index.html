@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal MedicalHub | Sistema Médico SaaS</title>
-    
-    <!-- Design System Empresarial -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -31,7 +31,6 @@
             overflow-x: hidden;
         }
 
-        /* Layout Empresarial */
         .dashboard-container {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -47,6 +46,8 @@
             top: 0;
             height: 100vh;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .brand {
@@ -71,11 +72,7 @@
             font-size: 20px;
         }
 
-        /* Sistema de Navegación Real */
-        .nav-section {
-            margin-bottom: 32px;
-        }
-
+        .nav-section { margin-bottom: 32px; }
         .nav-title {
             font-size: 11px;
             text-transform: uppercase;
@@ -100,23 +97,14 @@
             font-weight: 500;
         }
 
-        .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
         .nav-item.active {
             background: var(--primary);
             color: white;
             box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
 
-        /* Panel Principal */
-        .main-panel {
-            padding: 0;
-            position: relative;
-        }
-
+        .main-panel { padding: 0; position: relative; }
         .top-bar {
             background: var(--surface);
             padding: 0 32px;
@@ -128,20 +116,13 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .workspace {
-            padding: 32px;
-            max-width: 1600px;
-            margin: 0 auto;
-            width: 100%;
-        }
+        .workspace { padding: 32px; max-width: 1600px; margin: 0 auto; width: 100%; }
 
-        /* Sistema de Métricas en Tiempo Real */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 24px;
             margin-bottom: 32px;
         }
@@ -152,42 +133,11 @@
             padding: 24px;
             border: 1px solid var(--border);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
+        .metric-value { font-size: 32px; font-weight: 800; margin: 8px 0; }
+        .metric-label { font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
-        .metric-value {
-            font-size: 36px;
-            font-weight: 800;
-            line-height: 1;
-            margin: 8px 0;
-            color: var(--text-main);
-        }
-
-        .metric-label {
-            font-size: 13px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-trend {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .trend-up { color: var(--success); }
-        .trend-down { color: var(--danger); }
-
-        /* Tablas Interactivas */
         .data-table {
             width: 100%;
             border-collapse: separate;
@@ -195,7 +145,7 @@
             background: var(--surface);
             border-radius: var(--radius);
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
         }
 
         .data-table th {
@@ -204,635 +154,360 @@
             text-align: left;
             font-weight: 600;
             color: #475569;
-            border-bottom: 2px solid var(--border);
             font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .data-table td {
-            padding: 20px 24px;
             border-bottom: 1px solid var(--border);
-            vertical-align: middle;
         }
 
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
+        .data-table td { padding: 16px 24px; border-bottom: 1px solid var(--border); }
 
-        .data-table tr:hover {
-            background: #f8fafc;
-        }
-
-        /* Badges de Estado */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        .status-confirmada {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-pendiente {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-completada {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-cancelada {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Botones de Acción */
         .btn {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 10px 18px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s;
             border: none;
-            text-decoration: none;
+            transition: 0.2s;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
 
-        .btn-primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--border);
-            color: var(--text-main);
-        }
-
-        /* Modal de Facturación Real */
         .modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(4px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            animation: fadeIn 0.3s ease;
         }
 
         .modal-container {
-            background: var(--surface);
-            border-radius: 20px;
+            background: white;
+            border-radius: 16px;
             width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow: hidden;
-            animation: slideUp 0.4s ease;
+            max-width: 600px;
+            padding: 32px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .view { display: none; }
+        .view.active { display: block; }
 
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Dashboard de Analytics */
-        .chart-container {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 24px;
-            border: 1px solid var(--border);
-            margin-bottom: 24px;
-        }
-
-        /* Sistema de Notificaciones */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--surface);
+            background: white;
+            padding: 16px 24px;
             border-radius: 12px;
-            padding: 16px 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 1000;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
             border-left: 4px solid var(--primary);
+            transform: translateX(150%);
+            transition: 0.3s;
+            z-index: 2000;
         }
+        .notification.show { transform: translateX(0); }
 
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                transition: left 0.3s ease;
-                z-index: 1001;
-            }
-            
-            .sidebar.active {
-                left: 0;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .workspace {
-                padding: 20px;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .top-bar {
-                padding: 0 16px;
-            }
-        }
-
-        /* Animaciones */
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        /* Sistema de Configuración por Clínica */
-        .clinic-config-panel {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 32px;
-            border: 1px solid var(--border);
-            margin-bottom: 32px;
-        }
-
-        .config-section {
-            margin-bottom: 32px;
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .config-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        /* Precios Dinámicos */
-        .price-table {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .price-item {
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .price-label {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 8px;
-        }
-
-        .price-value {
-            font-size: 24px;
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--text-main);
+            text-transform: uppercase;
         }
-
-        /* Sistema de Filtros */
-        .filters-bar {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .filter-select {
-            padding: 10px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            color: var(--text-main);
-            font-size: 14px;
-            min-width: 160px;
-        }
-
-        /* Estados de Carga */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        .status-confirmada { background: #d1fae5; color: #065f46; }
+        .status-pendiente { background: #fef3c7; color: #92400e; }
     </style>
-
-    <!-- Librerías Esenciales -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Sistema de Notificaciones -->
-    <div id="notification-system"></div>
+    <div id="notification" class="notification"></div>
 
-    <!-- Modal de Configuración de Clínica -->
-    <div id="modal-clinica" class="modal-overlay">
+    <div id="modal" class="modal-overlay">
         <div class="modal-container">
-            <div style="padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="font-size: 20px; font-weight: 700;">Configuración de Clínica</h2>
-                <button onclick="closeModal('modal-clinica')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2 id="modal-title">Título</h2>
+                <button onclick="closeModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
             </div>
-            <div style="padding: 32px;" id="clinica-config-content">
-                <!-- Cargado dinámicamente -->
+            <div id="modal-body">Contenido del modal...</div>
+            <div style="margin-top: 24px; text-align: right;">
+                <button class="btn btn-outline" onclick="closeModal()">Cerrar</button>
+                <button class="btn btn-primary" onclick="saveModal()">Guardar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Nueva Cita -->
-    <div id="modal-cita" class="modal-overlay">
-        <div class="modal-container">
-            <div style="padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="font-size: 20px; font-weight: 700;">Agendar Nueva Cita</h2>
-                <button onclick="closeModal('modal-cita')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
-            </div>
-            <div style="padding: 32px;" id="cita-form-content">
-                <!-- Cargado dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Facturación -->
-    <div id="modal-facturacion" class="modal-overlay">
-        <div class="modal-container">
-            <div style="padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="font-size: 20px; font-weight: 700;">Emitir Factura / Bono</h2>
-                <button onclick="closeModal('modal-facturacion')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
-            </div>
-            <div style="padding: 32px;" id="facturacion-content">
-                <!-- Cargado dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Layout Principal -->
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
+        <nav class="sidebar">
             <div class="brand">
-                <div class="brand-icon">
-                    <i class="fas fa-stethoscope"></i>
-                </div>
-                <div>
-                    <div style="font-size: 18px; font-weight: 800;">MedicalHub</div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">SaaS Empresarial</div>
-                </div>
+                <div class="brand-icon"><i class="fas fa-stethoscope"></i></div>
+                <span>MedicalHub</span>
             </div>
-
-            <!-- Información de Clínica -->
-            <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
-                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;" id="current-clinic-name">Clínica Demo</div>
-                <div style="font-size: 12px; color: #94a3b8;" id="current-clinic-plan">Plan Growth</div>
-            </div>
-
-            <!-- Navegación Principal -->
+            
             <div class="nav-section">
                 <div class="nav-title">Clínica</div>
-                <a href="#" class="nav-item active" onclick="changeView('dashboard', this)">
-                    <i class="fas fa-th-large"></i> Dashboard
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('agenda', this)">
-                    <i class="fas fa-calendar-alt"></i> Agenda Médica
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('pacientes', this)">
-                    <i class="fas fa-users"></i> Pacientes
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('profesionales', this)">
-                    <i class="fas fa-user-md"></i> Profesionales
-                </a>
+                <div class="nav-item active" onclick="changeView('dashboard', this)"><i class="fas fa-chart-line"></i> Dashboard</div>
+                <div class="nav-item" onclick="changeView('agenda', this)"><i class="fas fa-calendar-alt"></i> Agenda Médica</div>
+                <div class="nav-item" onclick="changeView('pacientes', this)"><i class="fas fa-users"></i> Pacientes</div>
+                <div class="nav-item" onclick="changeView('profesionales', this)"><i class="fas fa-user-md"></i> Profesionales</div>
             </div>
 
             <div class="nav-section">
                 <div class="nav-title">Finanzas</div>
-                <a href="#" class="nav-item" onclick="changeView('facturacion', this)">
-                    <i class="fas fa-file-invoice-dollar"></i> Facturación
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('pagos', this)">
-                    <i class="fas fa-cash-register"></i> Pagos
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('reportes', this)">
-                    <i class="fas fa-chart-bar"></i> Reportes
-                </a>
+                <div class="nav-item" onclick="changeView('facturacion', this)"><i class="fas fa-file-invoice-dollar"></i> Facturación</div>
+                <div class="nav-item" onclick="changeView('pagos', this)"><i class="fas fa-cash-register"></i> Pagos</div>
+                <div class="nav-item" onclick="changeView('reportes', this)"><i class="fas fa-chart-bar"></i> Reportes</div>
             </div>
 
             <div class="nav-section">
                 <div class="nav-title">Automatización</div>
-                <a href="#" class="nav-item" onclick="changeView('whatsapp', this)">
-                    <i class="fab fa-whatsapp"></i> WhatsApp Bot
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('email', this)">
-                    <i class="fas fa-envelope"></i> Email Marketing
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('integraciones', this)">
-                    <i class="fas fa-plug"></i> Integraciones
-                </a>
+                <div class="nav-item" onclick="changeView('whatsapp', this)"><i class="fab fa-whatsapp"></i> WhatsApp Bot</div>
+                <div class="nav-item" onclick="changeView('email', this)"><i class="fas fa-envelope"></i> Email Marketing</div>
             </div>
 
-            <div class="nav-section">
-                <div class="nav-title">Configuración</div>
-                <a href="#" class="nav-item" onclick="openClinicaConfig()">
-                    <i class="fas fa-cog"></i> Configurar Clínica
-                </a>
-                <a href="#" class="nav-item" onclick="changeView('usuarios', this)">
-                    <i class="fas fa-user-cog"></i> Usuarios
-                </a>
-                <a href="#" class="nav-item" onclick="showNotification('info', 'Demo: Esta función está en desarrollo')">
-                    <i class="fas fa-shield-alt"></i> Seguridad
-                </a>
-            </div>
-
-            <!-- Estado del Sistema -->
-            <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                    <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></div>
-                    <div style="font-size: 12px; color: #94a3b8;">Sistema Online</div>
-                </div>
-                <div style="font-size: 11px; color: #64748b;">
-                    © 2024 AutomatizA SUR<br>
-                    medical.automatizasur.cl
-                </div>
+            <div style="margin-top: auto; font-size: 12px; color: #94a3b8; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p><i class="fas fa-circle" style="color: #10b981; font-size: 8px;"></i> Sistema Online</p>
+                <p>© 2024 AutomatizA SUR</p>
             </div>
         </nav>
 
-        <!-- Panel Principal -->
         <main class="main-panel">
-            <!-- Top Bar -->
             <header class="top-bar">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <button id="menu-toggle" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; display: none;">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 id="view-title" style="font-size: 20px; font-weight: 700;">Dashboard</h1>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 24px;">
-                    <!-- Selector de Clínica (Demo Multi-Tenant) -->
-                    <div style="position: relative;">
-                        <select id="clinic-selector" style="padding: 8px 32px 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main); font-size: 14px; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%2364748b" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 20px;">
-                            <option value="traumatologia">Clínica Traumatología</option>
-                            <option value="dermatologia">Dermatología Avanzada</option>
-                            <option value="cardiologia">Cardiología Integral</option>
-                        </select>
+                <h1 id="view-title">Dashboard</h1>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: 700;">Dr. Felipe Araneda</div>
+                        <div style="font-size: 12px; color: #64748b;">Administrador</div>
                     </div>
-
-                    <!-- Notificaciones -->
-                    <button onclick="showNotification('success', 'Demo: Notificaciones activas')" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; position: relative;">
-                        <i class="fas fa-bell"></i>
-                        <span style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center;">3</span>
-                    </button>
-
-                    <!-- Perfil de Usuario -->
-                    <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="toggleUserMenu()">
-                        <div style="text-align: right;">
-                            <div style="font-size: 14px; font-weight: 600;" id="current-user-name">Dr. Felipe Araneda</div>
-                            <div style="font-size: 12px; color: #64748b;">Administrador</div>
-                        </div>
-                        <div style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;" id="user-avatar">FA</div>
-                    </div>
+                    <div style="width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">FA</div>
                 </div>
             </header>
 
-            <!-- Área de Trabajo -->
             <div class="workspace">
                 <!-- VISTA: DASHBOARD -->
                 <div id="view-dashboard" class="view active">
-                    <!-- Métricas en Tiempo Real -->
                     <div class="metrics-grid">
                         <div class="metric-card">
                             <div class="metric-label">Ingresos Hoy</div>
-                            <div class="metric-value" id="metric-ingresos">$480.750</div>
-                            <div class="metric-trend">
-                                <span class="trend-up">
-                                    <i class="fas fa-arrow-up"></i> 18.5%
-                                </span>
-                                vs ayer
-                            </div>
+                            <div class="metric-value">$480.750</div>
+                            <div style="font-size: 12px; color: var(--success)"><i class="fas fa-arrow-up"></i> 18.5% vs ayer</div>
                         </div>
-
                         <div class="metric-card">
                             <div class="metric-label">Citas Hoy</div>
-                            <div class="metric-value" id="metric-citas">14</div>
-                            <div class="metric-trend">
-                                <span style="color: #10b981;">● 10</span> confirmadas
-                                <span style="color: #f59e0b; margin-left: 12px;">● 4</span> pendientes
-                            </div>
+                            <div class="metric-value">14</div>
+                            <div style="font-size: 12px; color: #64748b;">10 confirmadas, 4 pendientes</div>
                         </div>
-
                         <div class="metric-card">
                             <div class="metric-label">Pacientes Nuevos</div>
-                            <div class="metric-value" id="metric-pacientes-nuevos">8</div>
-                            <div class="metric-trend">
-                                <span class="trend-up">
-                                    <i class="fas fa-arrow-up"></i> 25%
-                                </span>
-                                este mes
-                            </div>
+                            <div class="metric-value">8</div>
+                            <div style="font-size: 12px; color: var(--success)"><i class="fas fa-arrow-up"></i> 25% este mes</div>
                         </div>
-
-                        <div class="metric-card" style="border-left: 4px solid var(--fonasa);">
-                            <div class="metric-label">Bonos FONASA</div>
-                            <div class="metric-value" style="color: var(--fonasa);">12</div>
-                            <div class="metric-trend">
-                                <span style="color: #64748b;">Total: $72.000</span>
-                            </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+                        <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid var(--border);">
+                            <h3 style="margin-bottom: 20px;">Ingresos Mensuales</h3>
+                            <canvas id="chart-ingresos" height="150"></canvas>
                         </div>
-
-                        <div class="metric-card" style="border-left: 4px solid var(--sii);">
-                            <div class="metric-label">Boletas SII</div>
-                            <div class="metric-value" style="color: var(--sii);">6</div>
-                            <div class="metric-trend">
-                                <span style="color: #64748b;">Total: $240.000</span>
-                            </div>
-                        </div>
-
-                        <div class="metric-card" style="border-left: 4px solid var(--neural); background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white;">
-                            <div class="metric-label">Automatización Activa</div>
-                            <div class="metric-value">3</div>
-                            <div class="metric-trend">
-                                <span style="opacity: 0.8;">WhatsApp, Email, Recordatorios</span>
-                            </div>
+                        <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid var(--border);">
+                            <h3 style="margin-bottom: 20px;">Especialidades</h3>
+                            <canvas id="chart-especialidades" height="150"></canvas>
                         </div>
                     </div>
 
-                    <!-- Gráficos -->
-                    <div class="metrics-grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 32px;">
-                        <div class="chart-container">
-                            <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 600;">Ingresos Mensuales</h3>
-                            <canvas id="chart-ingresos" height="200"></canvas>
+                    <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                            <h3>Citas de Hoy</h3>
+                            <button class="btn btn-primary" onclick="openModal('Nueva Cita', 'Cargando formulario de agendamiento...')"><i class="fas fa-plus"></i> Nueva Cita</button>
                         </div>
-
-                        <div class="chart-container">
-                            <h3 style="margin-bottom: 20px; font-size: 16px; font-weight: 600;">Distribución por Especialidad</h3>
-                            <canvas id="chart-especialidades" height="200"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Citas Recientes -->
-                    <div class="data-table-container" style="background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                            <h3 style="font-size: 18px; font-weight: 700;">Citas de Hoy</h3>
-                            <div style="display: flex; gap: 12px;">
-                                <button class="btn btn-outline" onclick="exportData('citas')">
-                                    <i class="fas fa-download"></i> Exportar
-                                </button>
-                                <button class="btn btn-primary" onclick="openNewAppointment()">
-                                    <i class="fas fa-plus"></i> Nueva Cita
-                                </button>
-                            </div>
-                        </div>
-
                         <table class="data-table">
                             <thead>
                                 <tr>
                                     <th>Hora</th>
                                     <th>Paciente</th>
                                     <th>Médico</th>
-                                    <th>Tipo</th>
                                     <th>Estado</th>
-                                    <th>Pago</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="citas-hoy-body">
-                                <!-- Cargado dinámicamente -->
+                            <tbody>
+                                <tr>
+                                    <td>09:00</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Dr. Araneda</td>
+                                    <td><span class="status-badge status-confirmada">Confirmada</span></td>
+                                    <td><button class="btn btn-outline" onclick="showNotification('Abriendo ficha de Juan Pérez...')">Ver</button></td>
+                                </tr>
+                                <tr>
+                                    <td>10:30</td>
+                                    <td>María García</td>
+                                    <td>Dra. Rodríguez</td>
+                                    <td><span class="status-badge status-pendiente">Pendiente</span></td>
+                                    <td><button class="btn btn-outline" onclick="showNotification('Abriendo ficha de María García...')">Ver</button></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- VISTA: AGENDA MÉDICA -->
-                <div id="view-agenda" class="view" style="display: none;">
-                    <div style="margin-bottom: 32px;">
-                        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Agenda Médica</h2>
-                        <p style="color: #64748b;">Gestión completa de citas y disponibilidad</p>
+                <!-- VISTA: AGENDA -->
+                <div id="view-agenda" class="view">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h2>Agenda Médica</h2>
+                        <button class="btn btn-primary" onclick="showNotification('Abriendo calendario completo...')">Ver Calendario</button>
                     </div>
-
-                    <div class="filters-bar">
-                        <div class="filter-group">
-                            <label style="font-size: 14px; color: #64748b; margin-right: 8px;">Fecha:</label>
-                            <input type="date" id="fecha-agenda" class="filter-select" value="2024-01-15">
-                        </div>
-                        <div class="filter-group">
-                            <label style="font-size: 14px; color: #64748b; margin-right: 8px;">Médico:</label>
-                            <select id="medico-filter" class="filter-select">
-                                <option value="all">Todos los médicos</option>
-                                <option value="1">Dr. Felipe Araneda</option>
-                                <option value="2">Dra. Camila Rodríguez</option>
-                                <option value="3">Dr. Andrés Pérez</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label style="font-size: 14px; color: #64748b; margin-right: 8px;">Estado:</label>
-                            <select id="estado-filter" class="filter-select">
-                                <option value="all">Todos</option>
-                                <option value="confirmada">Confirmadas</option>
-                                <option value="pendiente">Pendientes</option>
-                                <option value="completada">Completadas</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Calendario Semanal -->
-                    <div style="background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 32px;">
-                        <div id="weekly-calendar">
-                            <!-- Cargado por JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Lista de Citas -->
-                    <div id="agenda-list">
-                        <!-- Cargado por JavaScript -->
+                    <div style="background: white; padding: 40px; border-radius: 14px; border: 1px solid var(--border); text-align: center;">
+                        <i class="fas fa-calendar-alt" style="font-size: 48px; color: var(--border); margin-bottom: 16px;"></i>
+                        <p>Cargando agenda del día...</p>
                     </div>
                 </div>
 
                 <!-- VISTA: PACIENTES -->
-                <div id="view-pacientes" class="view" style="display: none;">
-                    <div style="margin-bottom: 32px;">
-                        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Gestión de Pacientes</h2>
-                        <p style="color: #64748b;">Base de datos completa con historial médico</p>
+                <div id="view-pacientes" class="view">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h2>Gestión de Pacientes</h2>
+                        <button class="btn btn-primary" onclick="openModal('Nuevo Paciente', 'Formulario de registro de paciente...')">Nuevo Paciente</button>
                     </div>
+                    <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid var(--border);">
+                        <input type="text" placeholder="Buscar por nombre o RUT..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
+                        <p style="color: #64748b;">Listado de pacientes registrados en la clínica.</p>
+                    </div>
+                </div>
 
-                    <!-- Búsqueda y Filtros -->
-                    <div style="background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); margin-bottom: 24px;">
-                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 16px; align-items: end;">
-                            <div>
-                                <label style="display: block; font-size: 14px; color: #64748b; margin-bottom: 8px;">Buscar Paciente</label>
-                                <input type="text" id="search-paciente" placeholder="Nombre, RUT, teléfono..." style="width: 100%; padding: 12px; border: 1px solid var(--border
+                <!-- VISTA: PROFESIONALES -->
+                <div id="view-profesionales" class="view">
+                    <h2>Cuerpo Médico</h2>
+                    <p>Gestión de profesionales y horarios.</p>
+                </div>
+
+                <!-- VISTA: FACTURACION -->
+                <div id="view-facturacion" class="view">
+                    <h2>Facturación y SII</h2>
+                    <p>Emisión de boletas y facturas electrónicas.</p>
+                </div>
+
+                <!-- VISTA: PAGOS -->
+                <div id="view-pagos" class="view">
+                    <h2>Control de Pagos</h2>
+                    <p>Registro de ingresos y medios de pago.</p>
+                </div>
+
+                <!-- VISTA: REPORTES -->
+                <div id="view-reportes" class="view">
+                    <h2>Reportes Estadísticos</h2>
+                    <p>Análisis de rendimiento y finanzas.</p>
+                </div>
+
+                <!-- VISTA: WHATSAPP -->
+                <div id="view-whatsapp" class="view">
+                    <h2>WhatsApp Bot</h2>
+                    <p>Configuración de recordatorios automáticos.</p>
+                </div>
+
+                <!-- VISTA: EMAIL -->
+                <div id="view-email" class="view">
+                    <h2>Email Marketing</h2>
+                    <p>Campañas y comunicaciones con pacientes.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Inicializar Gráficos
+        window.onload = function() {
+            const ctxIngresos = document.getElementById('chart-ingresos').getContext('2d');
+            new Chart(ctxIngresos, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                    datasets: [{
+                        label: 'Ingresos ($)',
+                        data: [300000, 450000, 380000, 520000, 480000, 250000],
+                        borderColor: '#2563eb',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            const ctxEspecialidades = document.getElementById('chart-especialidades').getContext('2d');
+            new Chart(ctxEspecialidades, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Trauma', 'Derma', 'Cardio'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: ['#2563eb', '#8b5cf6', '#10b981']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        };
+
+        // Lógica de Navegación
+        function changeView(viewId, element) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Mostrar la vista seleccionada
+            const targetView = document.getElementById('view-' + viewId);
+            if (targetView) {
+                targetView.classList.add('active');
+            } else {
+                showNotification('Módulo ' + viewId + ' en desarrollo');
+                return;
+            }
+            
+            // Actualizar menú lateral
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Actualizar título
+            const titles = {
+                'dashboard': 'Dashboard',
+                'agenda': 'Agenda Médica',
+                'pacientes': 'Pacientes',
+                'profesionales': 'Profesionales',
+                'facturacion': 'Facturación',
+                'pagos': 'Pagos',
+                'reportes': 'Reportes',
+                'whatsapp': 'WhatsApp Bot',
+                'email': 'Email Marketing'
+            };
+            document.getElementById('view-title').innerText = titles[viewId] || 'MedicalHub';
+            
+            showNotification('Cargando módulo: ' + (titles[viewId] || viewId));
+        }
+
+        // Modales
+        function openModal(title, body) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = body;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveModal() {
+            showNotification('Operación realizada con éxito');
+            closeModal();
+        }
+
+        // Notificaciones
+        function showNotification(message) {
+            const n = document.getElementById('notification');
+            n.innerText = message;
+            n.classList.add('show');
+            setTimeout(() => n.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
