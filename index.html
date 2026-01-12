@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="es-CL">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MedicalHub AI | Elite Healthcare OS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -10,483 +11,276 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.4);
             --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.2);
         }
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f0f2f5;
-            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-                              radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+            background: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
         }
         .glass-card {
             background: var(--glass);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
-        .sidebar-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .sidebar-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar-item:hover {
-            transform: translateX(5px);
-            background: rgba(99, 102, 241, 0.1);
+        @media (max-width: 1024px) {
+            .sidebar-mobile {
+                transform: translateX(-100%);
+                z-index: 50;
+            }
+            .sidebar-mobile.active {
+                transform: translateX(0);
+            }
         }
-        .sidebar-item.active {
+        .nav-item.active {
             background: #6366f1;
             color: white;
-            box-shadow: 0 4px 15px var(--accent-glow);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
-        .ai-glow {
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2); }
-            to { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); }
-        }
-        .view { display: none; animation: fadeIn 0.4s ease-out; }
-        .view.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .pulse-green {
-            animation: pulse-green 2s infinite;
-        }
-        @keyframes pulse-green {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="bg-slate-50 overflow-x-hidden">
 
-    <!-- AI Notification System -->
-    <div id="ai-toast" class="fixed top-6 right-6 z-[100] transform translate-x-[150%] transition-transform duration-500">
-        <div class="glass-card rounded-2xl p-4 flex items-center gap-4 border-l-4 border-indigo-500 min-w-[320px]">
-            <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-                <i class="fas fa-robot ai-glow"></i>
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-brain text-sm"></i>
             </div>
-            <div>
-                <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Medical AI Assistant</p>
-                <p id="ai-toast-msg" class="text-sm text-slate-600 font-medium">Analizando datos en tiempo real...</p>
-            </div>
+            <span class="font-extrabold text-lg tracking-tight">MedicalHub<span class="text-indigo-600">AI</span></span>
         </div>
+        <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center text-slate-600">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
     </div>
 
     <div class="flex min-h-screen">
-        <!-- Sidebar Elite -->
-        <aside class="w-72 bg-white border-r border-slate-200 p-6 flex flex-col sticky top-0 h-screen">
-            <div class="flex items-center gap-3 mb-10 px-2">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-mobile sidebar-transition fixed lg:static w-72 h-screen bg-white border-r border-slate-200 p-6 flex flex-col overflow-y-auto">
+            <div class="hidden lg:flex items-center gap-3 mb-10 px-2">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
                     <i class="fas fa-brain"></i>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight text-slate-900">MedicalHub<span class="text-indigo-600">AI</span></span>
+                <span class="text-xl font-extrabold tracking-tight">MedicalHub<span class="text-indigo-600">AI</span></span>
             </div>
 
-            <nav class="space-y-1 flex-1 overflow-y-auto">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[2px] mb-4 px-2">Core Platform</p>
-                <a href="#" onclick="showView('dashboard', this)" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
-                    <i class="fas fa-grid-2"></i> Dashboard Intelligence
+            <nav class="space-y-1 flex-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Principal</p>
+                <a href="#" onclick="showView('dashboard', this)" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
+                    <i class="fas fa-chart-pie w-5"></i> Dashboard
                 </a>
-                <a href="#" onclick="showView('agenda', this)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500">
-                    <i class="fas fa-calendar-check"></i> Smart Agenda
+                <a href="#" onclick="showView('agenda', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
+                    <i class="fas fa-calendar-alt w-5"></i> Agenda
                 </a>
-                <a href="#" onclick="showView('pacientes', this)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500">
-                    <i class="fas fa-user-injured"></i> Patient 360°
+                <a href="#" onclick="showView('pacientes', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
+                    <i class="fas fa-users w-5"></i> Pacientes
                 </a>
                 
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[2px] mt-8 mb-4 px-2">Financial & Ops</p>
-                <a href="#" onclick="showView('finanzas', this)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500">
-                    <i class="fas fa-wallet"></i> Fonasa & Payments
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-8 mb-4 px-2">Operaciones</p>
+                <a href="#" onclick="showView('finanzas', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
+                    <i class="fas fa-wallet w-5"></i> Finanzas & Fonasa
                 </a>
-                <a href="#" onclick="showView('marketing', this)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500">
-                    <i class="fas fa-bullhorn"></i> AI Marketing Hub
-                </a>
-                <a href="#" onclick="showView('whatsapp', this)" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500">
-                    <i class="fab fa-whatsapp"></i> WhatsApp Automation
+                <a href="#" onclick="showView('whatsapp', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
+                    <i class="fab fa-whatsapp w-5"></i> WhatsApp Bot
                 </a>
             </nav>
 
             <div class="mt-auto pt-6 border-t border-slate-100">
-                <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="relative">
-                        <img src="https://ui-avatars.com/api/?name=Felipe+Araneda&background=6366f1&color=fff" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    </div>
+                <div class="flex items-center gap-3 p-2">
+                    <img src="https://ui-avatars.com/api/?name=Felipe+Araneda&background=6366f1&color=fff" class="w-10 h-10 rounded-full">
                     <div class="overflow-hidden">
                         <p class="text-sm font-bold text-slate-900 truncate">Dr. Felipe Araneda</p>
-                        <p class="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Chief Medical Officer</p>
+                        <p class="text-[10px] font-medium text-slate-500 uppercase">Administrador</p>
                     </div>
                 </div>
             </div>
         </aside>
 
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
         <!-- Main Content -->
-        <main class="flex-1 p-8">
-            <!-- Header -->
-            <header class="flex justify-between items-center mb-10">
+        <main class="flex-1 p-4 lg:p-8 max-w-full overflow-x-hidden">
+            <!-- Desktop Header -->
+            <header class="hidden lg:flex justify-between items-center mb-10">
                 <div>
-                    <h2 id="view-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard Intelligence</h2>
-                    <p class="text-slate-500 font-medium mt-1">Bienvenido, Dr. Araneda. La IA ha optimizado 4 citas para hoy.</p>
+                    <h2 id="view-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h2>
+                    <p class="text-slate-500 font-medium mt-1">Gestión inteligente de tu clínica médica.</p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button class="glass-card px-4 py-2 rounded-xl text-sm font-bold text-slate-600 flex items-center gap-2 hover:bg-white transition-colors">
-                        <i class="fas fa-search"></i> Command + K
-                    </button>
-                    <div class="w-10 h-10 glass-card rounded-xl flex items-center justify-center text-slate-600 relative cursor-pointer">
+                    <div class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 relative cursor-pointer">
                         <i class="fas fa-bell"></i>
-                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">3</span>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
                     </div>
                 </div>
             </header>
 
-            <!-- Views Container -->
+            <!-- Views -->
             <div id="views">
-                
-                <!-- DASHBOARD VIEW -->
-                <section id="view-dashboard" class="view active space-y-8">
-                    <!-- AI Insights Row -->
-                    <div class="grid grid-cols-3 gap-6">
-                        <div class="glass-card p-6 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 text-white relative overflow-hidden">
-                            <div class="relative z-10">
-                                <p class="text-indigo-100 text-xs font-bold uppercase tracking-widest mb-2">Predicción de Ingresos</p>
-                                <h3 class="text-4xl font-black mb-4">$12.4M <span class="text-sm font-medium text-indigo-200">+14%</span></h3>
-                                <div class="flex items-center gap-2 text-xs bg-white/10 w-fit px-3 py-1.5 rounded-full backdrop-blur-md">
-                                    <i class="fas fa-sparkles"></i> IA estima $15M para fin de mes
-                                </div>
-                            </div>
-                            <i class="fas fa-chart-line absolute -bottom-4 -right-4 text-white/10 text-9xl"></i>
-                        </div>
-                        <div class="glass-card p-6 rounded-[2rem] flex flex-col justify-between">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Citas Automatizadas</p>
-                                    <h3 class="text-3xl font-black text-slate-900">84%</h3>
-                                </div>
-                                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                                    <i class="fab fa-whatsapp text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-emerald-500 h-full w-[84%]"></div>
-                                </div>
-                                <p class="text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-wider">WhatsApp Bot ahorró 12 horas esta semana</p>
+                <!-- DASHBOARD -->
+                <section id="view-dashboard" class="view active space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                        <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-lg shadow-indigo-100">
+                            <p class="text-indigo-100 text-[10px] font-bold uppercase tracking-widest mb-1">Ingresos Hoy</p>
+                            <h3 class="text-3xl font-black">$480.750</h3>
+                            <div class="mt-4 flex items-center gap-2 text-xs bg-white/10 w-fit px-2 py-1 rounded-lg">
+                                <i class="fas fa-arrow-up"></i> +12% vs ayer
                             </div>
                         </div>
-                        <div class="glass-card p-6 rounded-[2rem] flex flex-col justify-between border-l-4 border-amber-400">
-                            <div>
-                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Alerta de Retención</p>
-                                <h3 class="text-3xl font-black text-slate-900">12 Pacientes</h3>
-                            </div>
-                            <p class="text-xs text-slate-600 font-medium leading-relaxed">La IA detectó 12 pacientes con riesgo de abandono de tratamiento. <span class="text-indigo-600 font-bold cursor-pointer hover:underline">Lanzar campaña →</span></p>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Citas Agendadas</p>
+                            <h3 class="text-3xl font-black text-slate-900">14</h3>
+                            <p class="text-xs text-slate-500 mt-2 font-medium">8 confirmadas por el Bot</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Nuevos Pacientes</p>
+                            <h3 class="text-3xl font-black text-slate-900">6</h3>
+                            <p class="text-xs text-emerald-600 mt-2 font-bold">+25% este mes</p>
                         </div>
                     </div>
 
-                    <!-- Charts & Real-time -->
-                    <div class="grid grid-cols-2 gap-8">
-                        <div class="glass-card p-8 rounded-[2.5rem]">
-                            <div class="flex justify-between items-center mb-8">
-                                <h4 class="font-extrabold text-xl text-slate-900">Flujo de Pacientes AI</h4>
-                                <select class="bg-slate-50 border-none text-xs font-bold rounded-lg px-3 py-2 outline-none">
-                                    <option>Últimos 7 días</option>
-                                    <option>Mensual</option>
-                                </select>
-                            </div>
-                            <canvas id="mainChart" height="220"></canvas>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <h4 class="font-bold text-slate-900 mb-6">Flujo Semanal</h4>
+                            <canvas id="mainChart" height="200"></canvas>
                         </div>
-                        <div class="glass-card p-8 rounded-[2.5rem]">
-                            <h4 class="font-extrabold text-xl text-slate-900 mb-6">Próximas Citas Inteligentes</h4>
-                            <div class="space-y-4">
-                                <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer group border border-transparent hover:border-slate-100">
-                                    <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">09:00</div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-bold text-slate-900">Constanza Valdés</p>
-                                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Control Post-Operatorio</p>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <h4 class="font-bold text-slate-900 mb-6">Próximas Citas</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xs">09:00</div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-bold text-slate-900 truncate">Juan Pérez</p>
+                                        <p class="text-[10px] text-slate-500 font-bold uppercase">Control</p>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-md uppercase">Confirmada Bot</span>
-                                        <i class="fas fa-chevron-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
-                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-md">OK</span>
                                 </div>
-                                <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer group border border-transparent hover:border-slate-100">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 font-bold">10:30</div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-bold text-slate-900">Ricardo Toledo</p>
-                                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Evaluación Inicial</p>
+                                <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 font-bold text-xs">10:30</div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-bold text-slate-900 truncate">María García</p>
+                                        <p class="text-[10px] text-slate-500 font-bold uppercase">Evaluación</p>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md uppercase">Pendiente Pago</span>
-                                        <i class="fas fa-chevron-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">Ver Agenda Completa</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SMART AGENDA VIEW -->
-                <section id="view-agenda" class="view space-y-8">
-                    <div class="flex justify-between items-center">
-                        <div class="flex gap-2">
-                            <button class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200">Día</button>
-                            <button class="px-6 py-3 bg-white text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all">Semana</button>
-                            <button class="px-6 py-3 bg-white text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all">Mes</button>
-                        </div>
-                        <button onclick="triggerAI('Optimizando huecos en la agenda para maximizar ingresos...')" class="px-6 py-3 bg-white border border-indigo-200 text-indigo-600 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-indigo-50 transition-all">
-                            <i class="fas fa-magic"></i> Optimización IA
-                        </button>
-                    </div>
-                    <div class="glass-card rounded-[2.5rem] overflow-hidden">
-                        <div class="grid grid-cols-8 border-b border-slate-100 bg-slate-50/50">
-                            <div class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Hora</div>
-                            <div class="col-span-7 p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Disponibilidad & Citas</div>
-                        </div>
-                        <div class="divide-y divide-slate-50">
-                            <!-- Slot 1 -->
-                            <div class="grid grid-cols-8 group">
-                                <div class="p-6 text-sm font-bold text-slate-400 text-center border-r border-slate-50">08:00</div>
-                                <div class="col-span-7 p-4 flex gap-4">
-                                    <div class="flex-1 bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex justify-between items-center">
-                                        <div>
-                                            <p class="text-sm font-bold text-indigo-900">Bloque Quirúrgico</p>
-                                            <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Pabellón A - Clínica Alemana</p>
-                                        </div>
-                                        <div class="flex -space-x-2">
-                                            <img src="https://ui-avatars.com/api/?name=Anestesista&background=random" class="w-8 h-8 rounded-full border-2 border-white">
-                                            <img src="https://ui-avatars.com/api/?name=Arsenalera&background=random" class="w-8 h-8 rounded-full border-2 border-white">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Slot 2 -->
-                            <div class="grid grid-cols-8 group">
-                                <div class="p-6 text-sm font-bold text-slate-400 text-center border-r border-slate-50">09:00</div>
-                                <div class="col-span-7 p-4">
-                                    <div class="w-full h-full border-2 border-dashed border-slate-100 rounded-2xl flex items-center justify-center text-slate-300 font-bold text-sm hover:border-indigo-200 hover:text-indigo-400 cursor-pointer transition-all">
-                                        + Agendar Cita Manual o Sugerir por IA
-                                    </div>
+                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md">WAIT</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- PATIENT 360 VIEW -->
-                <section id="view-pacientes" class="view space-y-8">
-                    <div class="flex gap-4">
-                        <div class="flex-1 relative">
-                            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" placeholder="Buscar por Nombre, RUT o Patología (IA Search)..." class="w-full pl-14 pr-6 py-4 bg-white rounded-2xl border-none outline-none font-medium shadow-sm focus:ring-2 ring-indigo-500/20 transition-all">
-                        </div>
-                        <button class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 flex items-center gap-2">
-                            <i class="fas fa-plus"></i> Nuevo Paciente
-                        </button>
+                <!-- OTROS MÓDULOS -->
+                <section id="view-agenda" class="view space-y-6">
+                    <h3 class="text-xl font-bold">Agenda Médica</h3>
+                    <div class="bg-white p-10 rounded-3xl border border-slate-200 text-center">
+                        <i class="fas fa-calendar-alt text-4xl text-slate-200 mb-4"></i>
+                        <p class="text-slate-500 font-medium">Cargando calendario interactivo...</p>
                     </div>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="glass-card p-6 rounded-3xl flex items-center gap-6 hover:shadow-xl transition-all cursor-pointer border-l-8 border-indigo-500">
-                            <img src="https://ui-avatars.com/api/?name=Maria+Paz&background=random" class="w-16 h-16 rounded-2xl shadow-md">
+                </section>
+
+                <section id="view-pacientes" class="view space-y-6">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" placeholder="Buscar paciente..." class="flex-1 px-6 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 ring-indigo-500/20">
+                        <button class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-100">+ Nuevo</button>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-4">
+                            <img src="https://ui-avatars.com/api/?name=Maria+Paz&background=random" class="w-10 h-10 rounded-full">
                             <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <h5 class="text-lg font-extrabold text-slate-900">María Paz Figueroa</h5>
-                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded uppercase">Fonasa B</span>
-                                </div>
-                                <p class="text-sm text-slate-500 font-medium mt-1">Última visita: Hace 3 días • Tratamiento: Kinesiología Lumbar</p>
+                                <p class="text-sm font-bold text-slate-900">María Paz Figueroa</p>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase">Fonasa B • RUT: 12.345.678-9</p>
                             </div>
-                            <div class="text-right">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Score de Salud IA</p>
-                                <div class="flex items-center gap-2">
-                                    <div class="w-24 bg-slate-100 h-2 rounded-full overflow-hidden">
-                                        <div class="bg-green-500 h-full w-[92%]"></div>
-                                    </div>
-                                    <span class="text-sm font-black text-green-600">92%</span>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all"><i class="fas fa-file-medical"></i></button>
-                                <button class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-600 transition-all"><i class="fab fa-whatsapp"></i></button>
-                            </div>
+                            <button class="text-indigo-600 font-bold text-xs">Ver Ficha</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- FINANZAS & FONASA VIEW -->
-                <section id="view-finanzas" class="view space-y-8">
-                    <div class="grid grid-cols-4 gap-6">
-                        <div class="glass-card p-6 rounded-3xl bg-white border-b-4 border-emerald-500">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Bonos Fonasa Hoy</p>
-                            <h3 class="text-3xl font-black text-slate-900">24</h3>
-                            <p class="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1"><i class="fas fa-check-circle"></i> Sincronizado con MLE</p>
+                <section id="view-finanzas" class="view space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Bonos Fonasa</p>
+                            <h3 class="text-2xl font-black text-slate-900">24 Hoy</h3>
+                            <p class="text-xs text-emerald-600 font-bold mt-2">Sincronizado con MLE</p>
                         </div>
-                        <div class="glass-card p-6 rounded-3xl bg-white border-b-4 border-indigo-500">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Recaudación Transbank</p>
-                            <h3 class="text-3xl font-black text-slate-900">$1.240.000</h3>
-                            <p class="text-xs text-slate-500 font-bold mt-2">12 transacciones hoy</p>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl bg-white border-b-4 border-rose-500">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Boletas SII Pendientes</p>
-                            <h3 class="text-3xl font-black text-slate-900">0</h3>
-                            <p class="text-xs text-rose-600 font-bold mt-2 flex items-center gap-1"><i class="fas fa-bolt"></i> Auto-emisión activa</p>
-                        </div>
-                        <div class="glass-card p-6 rounded-3xl bg-indigo-600 text-white">
-                            <p class="text-indigo-200 text-[10px] font-bold uppercase tracking-widest mb-2">Liquidez Estimada</p>
-                            <h3 class="text-3xl font-black">$4.8M</h3>
-                            <button class="mt-4 w-full py-2 bg-white/20 hover:bg-white/30 rounded-xl text-xs font-bold transition-all">Retirar Fondos</button>
-                        </div>
-                    </div>
-                    <div class="glass-card rounded-[2.5rem] p-8">
-                        <h4 class="font-extrabold text-xl text-slate-900 mb-6">Historial de Transacciones Inteligente</h4>
-                        <table class="w-full">
-                            <thead>
-                                <tr class="text-left border-b border-slate-100">
-                                    <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paciente</th>
-                                    <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Prestación</th>
-                                    <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Método</th>
-                                    <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Monto</th>
-                                    <th class="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                <tr class="group">
-                                    <td class="py-4 font-bold text-sm">Andrés Bello</td>
-                                    <td class="py-4 text-sm text-slate-500">Consulta Médica General</td>
-                                    <td class="py-4"><span class="px-2 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded">Bono Fonasa</span></td>
-                                    <td class="py-4 font-black text-sm">$14.500</td>
-                                    <td class="py-4"><span class="flex items-center gap-2 text-xs font-bold text-emerald-600"><div class="w-2 h-2 bg-emerald-500 rounded-full pulse-green"></div> Pagado</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- WHATSAPP AUTOMATION VIEW -->
-                <section id="view-whatsapp" class="view space-y-8">
-                    <div class="grid grid-cols-2 gap-8">
-                        <div class="glass-card p-8 rounded-[2.5rem]">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-emerald-100">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-extrabold text-xl text-slate-900">WhatsApp AI Agent</h4>
-                                    <p class="text-xs text-emerald-600 font-bold uppercase tracking-wider">Estado: Conectado & Operativo</p>
-                                </div>
-                            </div>
-                            <div class="space-y-6">
-                                <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Flujo de Conversación IA</p>
-                                    <div class="space-y-3">
-                                        <div class="flex justify-end">
-                                            <div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[80%] shadow-md">
-                                                Hola Constanza, recordatorio de tu cita mañana a las 09:00. ¿Confirmas tu asistencia?
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-start">
-                                            <div class="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[80%] shadow-sm">
-                                                Hola! Sí, confirmo. ¿Puedo pagar con Fonasa allá?
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end">
-                                            <div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[80%] shadow-md flex items-center gap-2">
-                                                <i class="fas fa-robot text-[10px]"></i> ¡Claro! Aceptamos Fonasa B, C y D. Te esperamos.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button onclick="triggerAI('Entrenando modelo de lenguaje con nuevos protocolos de atención...')" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-sm hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-100">Configurar Respuestas Inteligentes</button>
-                            </div>
-                        </div>
-                        <div class="space-y-6">
-                            <div class="glass-card p-6 rounded-3xl">
-                                <h5 class="font-bold text-slate-900 mb-4">Métricas de Automatización</h5>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="p-4 bg-slate-50 rounded-2xl">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Citas Confirmadas</p>
-                                        <p class="text-2xl font-black text-slate-900">142</p>
-                                    </div>
-                                    <div class="p-4 bg-slate-50 rounded-2xl">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tasa de Respuesta</p>
-                                        <p class="text-2xl font-black text-emerald-600">98.2%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="glass-card p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-                                <h5 class="font-bold mb-2">Integración API Oficial</h5>
-                                <p class="text-xs text-slate-400 leading-relaxed mb-4">Usando Meta Cloud API para máxima estabilidad y cumplimiento de normativas de salud (HIPAA ready).</p>
-                                <div class="flex items-center gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                                    <div class="w-2 h-2 bg-emerald-400 rounded-full pulse-green"></div> Latencia: 45ms
-                                </div>
-                            </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Recaudación</p>
+                            <h3 class="text-2xl font-black text-slate-900">$1.2M</h3>
+                            <p class="text-xs text-slate-500 font-bold mt-2">Transbank & Efectivo</p>
                         </div>
                     </div>
                 </section>
 
+                <section id="view-whatsapp" class="view space-y-6">
+                    <div class="bg-emerald-500 p-8 rounded-3xl text-white">
+                        <div class="flex items-center gap-4 mb-6">
+                            <i class="fab fa-whatsapp text-4xl"></i>
+                            <div>
+                                <h4 class="font-bold text-xl">WhatsApp Bot AI</h4>
+                                <p class="text-emerald-100 text-sm">Estado: Activo & Respondiendo</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-2xl text-sm">
+                            <p class="font-medium">"Hola, confirmo mi cita para mañana."</p>
+                            <p class="mt-2 text-emerald-200 font-bold">Bot: ¡Excelente! Te esperamos a las 09:00.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
 
     <script>
-        // AI Toast System
-        function triggerAI(msg) {
-            const toast = document.getElementById('ai-toast');
-            const msgEl = document.getElementById('ai-toast-msg');
-            msgEl.innerText = msg;
-            toast.classList.remove('translate-x-[150%]');
-            setTimeout(() => {
-                toast.classList.add('translate-x-[150%]');
-            }, 4000);
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('hidden');
         }
 
-        // View Management
         function showView(viewId, el) {
-            // Update Sidebar
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.classList.remove('active', 'text-white');
-                item.classList.add('text-slate-500');
-            });
-            el.classList.add('active', 'text-white');
-            el.classList.remove('text-slate-500');
-
-            // Update Views
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
-
-            // Update Title
             const titles = {
-                'dashboard': 'Dashboard Intelligence',
-                'agenda': 'Smart Agenda',
-                'pacientes': 'Patient 360°',
-                'finanzas': 'Fonasa & Payments',
-                'marketing': 'AI Marketing Hub',
-                'whatsapp': 'WhatsApp Automation'
+                'dashboard': 'Dashboard',
+                'agenda': 'Agenda Médica',
+                'pacientes': 'Pacientes',
+                'finanzas': 'Finanzas & Fonasa',
+                'whatsapp': 'WhatsApp Bot'
             };
             document.getElementById('view-title').innerText = titles[viewId];
-
-            triggerAI(`Cargando módulo ${titles[viewId]} con optimización de datos...`);
+            if (window.innerWidth < 1024) toggleSidebar();
         }
 
-        // Charts Initialization
         window.onload = function() {
             const ctx = document.getElementById('mainChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
                     datasets: [{
-                        label: 'Pacientes Atendidos',
-                        data: [12, 19, 15, 25, 22, 30, 10],
+                        label: 'Pacientes',
+                        data: [12, 19, 15, 25, 22, 10],
                         borderColor: '#6366f1',
                         backgroundColor: 'rgba(99, 102, 241, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        borderWidth: 4,
-                        pointRadius: 0,
-                        pointHoverRadius: 6
+                        borderWidth: 3,
+                        pointRadius: 0
                     }]
                 },
                 options: {
@@ -495,15 +289,10 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { display: false },
-                        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }
                     }
                 }
             });
-
-            // Initial AI Greeting
-            setTimeout(() => {
-                triggerAI("Analizando tendencias: Los ingresos han subido un 14% esta semana. ¡Buen trabajo!");
-            }, 2000);
         };
     </script>
 </body>
