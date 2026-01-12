@@ -1,297 +1,143 @@
 
 <!DOCTYPE html>
-<html lang="es-CL">
+<html lang="es-CL" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MedicalHub AI | Elite Healthcare OS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>MedicalHub OS | Enterprise Healthcare Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f5f7ff', 100: '#ebf0fe', 200: '#ced9fd', 300: '#b1c2fb', 400: '#7695f8', 500: '#3b68f5', 600: '#355ddd', 700: '#2c4eb9', 800: '#233e94', 900: '#1d3379' },
+                        dark: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --glass: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --accent: #6366f1;
-        }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-        }
-        .sidebar-transition {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @media (max-width: 1024px) {
-            .sidebar-mobile {
-                transform: translateX(-100%);
-                z-index: 50;
-            }
-            .sidebar-mobile.active {
-                transform: translateX(0);
-            }
-        }
-        .nav-item.active {
-            background: #6366f1;
-            color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        @layer base { body { @apply bg-dark-950 text-slate-300 antialiased selection:bg-brand-500/30; } }
+        .glass-panel { @apply bg-dark-900/50 backdrop-blur-xl border border-white/5 shadow-2xl; }
+        .nav-link { @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/5 hover:text-white; }
+        .nav-link.active { @apply bg-brand-500/10 text-brand-400 border border-brand-500/20 shadow-[0_0_20px_rgba(59,104,245,0.1)]; }
+        .stat-card { @apply glass-panel p-6 rounded-2xl relative overflow-hidden group transition-all duration-300 hover:border-white/10; }
+        .stat-card::after { content: ''; @apply absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity; }
+        .view-container { display: none; }
+        .view-container.active { display: block; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { @apply bg-transparent; }
+        ::-webkit-scrollbar-thumb { @apply bg-slate-800 rounded-full hover:bg-slate-700; }
     </style>
 </head>
-<body class="bg-slate-50 overflow-x-hidden">
-
-    <!-- Mobile Header -->
-    <div class="lg:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                <i class="fas fa-brain text-sm"></i>
+<body class="overflow-hidden">
+    <div class="flex h-screen w-full overflow-hidden">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 glass-panel border-r border-white/5 flex flex-col transition-transform duration-300 lg:static lg:translate-x-0 -translate-x-full">
+            <div class="p-6 flex items-center gap-3">
+                <div class="h-9 w-9 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20"><i class="fas fa-shield-virus text-white text-lg"></i></div>
+                <div class="flex flex-col"><span class="text-white font-bold tracking-tight leading-none">MedicalHub</span><span class="text-[10px] text-brand-400 font-mono font-bold uppercase tracking-widest mt-1">Enterprise OS</span></div>
             </div>
-            <span class="font-extrabold text-lg tracking-tight">MedicalHub<span class="text-indigo-600">AI</span></span>
-        </div>
-        <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center text-slate-600">
-            <i class="fas fa-bars text-xl"></i>
-        </button>
-    </div>
-
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar-mobile sidebar-transition fixed lg:static w-72 h-screen bg-white border-r border-slate-200 p-6 flex flex-col overflow-y-auto">
-            <div class="hidden lg:flex items-center gap-3 mb-10 px-2">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <span class="text-xl font-extrabold tracking-tight">MedicalHub<span class="text-indigo-600">AI</span></span>
-            </div>
-
-            <nav class="space-y-1 flex-1">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Principal</p>
-                <a href="#" onclick="showView('dashboard', this)" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm">
-                    <i class="fas fa-chart-pie w-5"></i> Dashboard
-                </a>
-                <a href="#" onclick="showView('agenda', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
-                    <i class="fas fa-calendar-alt w-5"></i> Agenda
-                </a>
-                <a href="#" onclick="showView('pacientes', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
-                    <i class="fas fa-users w-5"></i> Pacientes
-                </a>
-                
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-8 mb-4 px-2">Operaciones</p>
-                <a href="#" onclick="showView('finanzas', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
-                    <i class="fas fa-wallet w-5"></i> Finanzas & Fonasa
-                </a>
-                <a href="#" onclick="showView('whatsapp', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-slate-500 hover:bg-slate-50">
-                    <i class="fab fa-whatsapp w-5"></i> WhatsApp Bot
-                </a>
-            </nav>
-
-            <div class="mt-auto pt-6 border-t border-slate-100">
-                <div class="flex items-center gap-3 p-2">
-                    <img src="https://ui-avatars.com/api/?name=Felipe+Araneda&background=6366f1&color=fff" class="w-10 h-10 rounded-full">
-                    <div class="overflow-hidden">
-                        <p class="text-sm font-bold text-slate-900 truncate">Dr. Felipe Araneda</p>
-                        <p class="text-[10px] font-medium text-slate-500 uppercase">Administrador</p>
+            <nav class="flex-1 px-4 space-y-8 overflow-y-auto py-4">
+                <div>
+                    <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Core Intelligence</p>
+                    <div class="space-y-1">
+                        <button onclick="switchView('dashboard', this)" class="nav-link active w-full"><i class="fas fa-grid-2 w-5 text-center"></i> Dashboard</button>
+                        <button onclick="switchView('ai-insights', this)" class="nav-link w-full"><i class="fas fa-microchip w-5 text-center"></i> AI Insights</button>
+                        <button onclick="switchView('agenda', this)" class="nav-link w-full"><i class="fas fa-calendar-range w-5 text-center"></i> Smart Agenda</button>
                     </div>
+                </div>
+                <div>
+                    <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Clinical Ops</p>
+                    <div class="space-y-1">
+                        <button onclick="switchView('patients', this)" class="nav-link w-full"><i class="fas fa-user-injured w-5 text-center"></i> Patients 360°</button>
+                        <button onclick="switchView('finance', this)" class="nav-link w-full"><i class="fas fa-vault w-5 text-center"></i> Finance & Fonasa</button>
+                    </div>
+                </div>
+                <div>
+                    <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Automation</p>
+                    <div class="space-y-1">
+                        <button onclick="switchView('whatsapp', this)" class="nav-link w-full"><i class="fab fa-whatsapp w-5 text-center"></i> WhatsApp AI</button>
+                        <button onclick="switchView('marketing', this)" class="nav-link w-full"><i class="fas fa-bullhorn w-5 text-center"></i> AI Marketing</button>
+                    </div>
+                </div>
+            </nav>
+            <div class="p-4 mt-auto border-t border-white/5">
+                <div class="flex items-center gap-3 p-2 rounded-xl bg-white/5">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b68f5&color=fff" class="h-9 w-9 rounded-lg border border-white/10">
+                    <div class="flex-1 min-w-0"><p class="text-xs font-bold text-white truncate">Dr. Araneda</p><p class="text-[10px] text-slate-500 font-mono">ID: MH-9921</p></div>
                 </div>
             </div>
         </aside>
-
-        <!-- Overlay for mobile sidebar -->
-        <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 hidden lg:hidden"></div>
-
-        <!-- Main Content -->
-        <main class="flex-1 p-4 lg:p-8 max-w-full overflow-x-hidden">
-            <!-- Desktop Header -->
-            <header class="hidden lg:flex justify-between items-center mb-10">
-                <div>
-                    <h2 id="view-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h2>
-                    <p class="text-slate-500 font-medium mt-1">Gestión inteligente de tu clínica médica.</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 relative cursor-pointer">
-                        <i class="fas fa-bell"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
-                    </div>
+        <main class="flex-1 flex flex-col min-w-0 lg:ml-64">
+            <header class="h-16 glass-panel border-b border-white/5 flex items-center justify-between px-8 sticky top-0 z-40">
+                <div class="flex items-center gap-4"><button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white"><i class="fas fa-bars-staggered text-xl"></i></button><h1 id="current-view-title" class="text-lg font-semibold text-white tracking-tight">Dashboard</h1></div>
+                <div class="flex items-center gap-6">
+                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span><span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">System Live</span></div>
+                    <button class="relative text-slate-400 hover:text-white transition-colors"><i class="fas fa-bell"></i><span class="absolute -top-1 -right-1 h-2 w-2 bg-brand-500 rounded-full border-2 border-dark-950"></span></button>
                 </div>
             </header>
-
-            <!-- Views -->
-            <div id="views">
-                <!-- DASHBOARD -->
-                <section id="view-dashboard" class="view active space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-                        <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-lg shadow-indigo-100">
-                            <p class="text-indigo-100 text-[10px] font-bold uppercase tracking-widest mb-1">Ingresos Hoy</p>
-                            <h3 class="text-3xl font-black">$480.750</h3>
-                            <div class="mt-4 flex items-center gap-2 text-xs bg-white/10 w-fit px-2 py-1 rounded-lg">
-                                <i class="fas fa-arrow-up"></i> +12% vs ayer
-                            </div>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Citas Agendadas</p>
-                            <h3 class="text-3xl font-black text-slate-900">14</h3>
-                            <p class="text-xs text-slate-500 mt-2 font-medium">8 confirmadas por el Bot</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Nuevos Pacientes</p>
-                            <h3 class="text-3xl font-black text-slate-900">6</h3>
-                            <p class="text-xs text-emerald-600 mt-2 font-bold">+25% este mes</p>
-                        </div>
+            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div id="view-dashboard" class="view-container active space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="stat-card"><div class="flex justify-between items-start mb-4"><div class="p-2 bg-brand-500/10 rounded-lg text-brand-400"><i class="fas fa-dollar-sign"></i></div><span class="text-[10px] font-bold text-emerald-400">+18.2%</span></div><p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Revenue Today</p><h3 class="text-2xl font-bold text-white mt-1">$1.240.000</h3></div>
+                        <div class="stat-card"><div class="flex justify-between items-start mb-4"><div class="p-2 bg-purple-500/10 rounded-lg text-purple-400"><i class="fas fa-calendar-check"></i></div><span class="text-[10px] font-bold text-slate-500">85% Cap</span></div><p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Appointments</p><h3 class="text-2xl font-bold text-white mt-1">42 <span class="text-sm font-normal text-slate-500">/ 50</span></h3></div>
+                        <div class="stat-card"><div class="flex justify-between items-start mb-4"><div class="p-2 bg-amber-500/10 rounded-lg text-amber-400"><i class="fas fa-robot"></i></div><span class="text-[10px] font-bold text-amber-400">Active</span></div><p class="text-xs font-medium text-slate-500 uppercase tracking-wider">AI Confirmations</p><h3 class="text-2xl font-bold text-white mt-1">38 <span class="text-sm font-normal text-slate-500">Success</span></h3></div>
+                        <div class="stat-card"><div class="flex justify-between items-start mb-4"><div class="p-2 bg-rose-500/10 rounded-lg text-rose-400"><i class="fas fa-heart-pulse"></i></div><span class="text-[10px] font-bold text-rose-400">Critical</span></div><p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Patient Risk</p><h3 class="text-2xl font-bold text-white mt-1">3 <span class="text-sm font-normal text-slate-500">Alerts</span></h3></div>
                     </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <h4 class="font-bold text-slate-900 mb-6">Flujo Semanal</h4>
-                            <canvas id="mainChart" height="200"></canvas>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <h4 class="font-bold text-slate-900 mb-6">Próximas Citas</h4>
-                            <div class="space-y-3">
-                                <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-600 font-bold text-xs">09:00</div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-bold text-slate-900 truncate">Juan Pérez</p>
-                                        <p class="text-[10px] text-slate-500 font-bold uppercase">Control</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-md">OK</span>
-                                </div>
-                                <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 font-bold text-xs">10:30</div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-bold text-slate-900 truncate">María García</p>
-                                        <p class="text-[10px] text-slate-500 font-bold uppercase">Evaluación</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md">WAIT</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 glass-panel rounded-2xl p-8"><div class="flex items-center justify-between mb-8"><div><h4 class="text-white font-bold">Performance Analytics</h4><p class="text-xs text-slate-500">Real-time clinical data processing</p></div></div><div class="h-[300px]"><canvas id="performanceChart"></canvas></div></div>
+                        <div class="glass-panel rounded-2xl p-8"><h4 class="text-white font-bold mb-6">AI Live Feed</h4><div class="space-y-6">
+                            <div class="flex gap-4"><div class="h-8 w-8 rounded-full bg-brand-500/20 flex items-center justify-center text-brand-400 shrink-0"><i class="fab fa-whatsapp text-xs"></i></div><div><p class="text-xs text-white font-medium">WhatsApp Bot</p><p class="text-[10px] text-slate-500 mt-1">Confirmed appointment for <span class="text-brand-400">M. Figueroa</span> at 15:30</p></div></div>
+                            <div class="flex gap-4"><div class="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0"><i class="fas fa-brain text-xs"></i></div><div><p class="text-xs text-white font-medium">Predictive Engine</p><p class="text-[10px] text-slate-500 mt-1">Detected 15% risk of no-show for tomorrow.</p></div></div>
+                        </div></div>
                     </div>
-                </section>
-
-                <!-- OTROS MÓDULOS -->
-                <section id="view-agenda" class="view space-y-6">
-                    <h3 class="text-xl font-bold">Agenda Médica</h3>
-                    <div class="bg-white p-10 rounded-3xl border border-slate-200 text-center">
-                        <i class="fas fa-calendar-alt text-4xl text-slate-200 mb-4"></i>
-                        <p class="text-slate-500 font-medium">Cargando calendario interactivo...</p>
-                    </div>
-                </section>
-
-                <section id="view-pacientes" class="view space-y-6">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" placeholder="Buscar paciente..." class="flex-1 px-6 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-2 ring-indigo-500/20">
-                        <button class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-100">+ Nuevo</button>
-                    </div>
-                    <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-                        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-4">
-                            <img src="https://ui-avatars.com/api/?name=Maria+Paz&background=random" class="w-10 h-10 rounded-full">
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-slate-900">María Paz Figueroa</p>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase">Fonasa B • RUT: 12.345.678-9</p>
-                            </div>
-                            <button class="text-indigo-600 font-bold text-xs">Ver Ficha</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="view-finanzas" class="view space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Bonos Fonasa</p>
-                            <h3 class="text-2xl font-black text-slate-900">24 Hoy</h3>
-                            <p class="text-xs text-emerald-600 font-bold mt-2">Sincronizado con MLE</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Recaudación</p>
-                            <h3 class="text-2xl font-black text-slate-900">$1.2M</h3>
-                            <p class="text-xs text-slate-500 font-bold mt-2">Transbank & Efectivo</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="view-whatsapp" class="view space-y-6">
-                    <div class="bg-emerald-500 p-8 rounded-3xl text-white">
-                        <div class="flex items-center gap-4 mb-6">
-                            <i class="fab fa-whatsapp text-4xl"></i>
-                            <div>
-                                <h4 class="font-bold text-xl">WhatsApp Bot AI</h4>
-                                <p class="text-emerald-100 text-sm">Estado: Activo & Respondiendo</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/10 p-4 rounded-2xl text-sm">
-                            <p class="font-medium">"Hola, confirmo mi cita para mañana."</p>
-                            <p class="mt-2 text-emerald-200 font-bold">Bot: ¡Excelente! Te esperamos a las 09:00.</p>
-                        </div>
-                    </div>
-                </section>
+                </div>
+                <div id="view-ai-insights" class="view-container space-y-8"><div class="glass-panel rounded-3xl p-12 text-center border-brand-500/20 bg-gradient-to-b from-brand-500/5 to-transparent"><div class="h-20 w-20 bg-brand-500 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto mb-8 shadow-2xl shadow-brand-500/40"><i class="fas fa-microchip"></i></div><h2 class="text-3xl font-black text-white mb-4 tracking-tight">AI Diagnostic Engine</h2><p class="text-slate-400 max-w-xl mx-auto leading-relaxed">Processing clinical data through our proprietary neural network to identify patterns and risks.</p></div></div>
+                <div id="view-agenda" class="view-container"><div class="glass-panel rounded-2xl p-20 text-center"><i class="fas fa-calendar-alt text-6xl text-slate-800 mb-6"></i><h3 class="text-xl font-bold text-white">Smart Agenda Engine</h3></div></div>
+                <div id="view-patients" class="view-container"><div class="glass-panel rounded-2xl p-20 text-center"><i class="fas fa-users text-6xl text-slate-800 mb-6"></i><h3 class="text-xl font-bold text-white">Patient 360° Database</h3></div></div>
+                <div id="view-finance" class="view-container"><div class="glass-panel rounded-2xl p-20 text-center"><i class="fas fa-vault text-6xl text-slate-800 mb-6"></i><h3 class="text-xl font-bold text-white">Financial Intelligence Hub</h3></div></div>
+                <div id="view-whatsapp" class="view-container"><div class="glass-panel rounded-2xl p-20 text-center"><i class="fab fa-whatsapp text-6xl text-slate-800 mb-6"></i><h3 class="text-xl font-bold text-white">WhatsApp AI Automation</h3></div></div>
+                <div id="view-marketing" class="view-container"><div class="glass-panel rounded-2xl p-20 text-center"><i class="fas fa-bullhorn text-6xl text-slate-800 mb-6"></i><h3 class="text-xl font-bold text-white">AI Marketing Suite</h3></div></div>
             </div>
         </main>
     </div>
-
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
     <script>
+        function switchView(viewId, element) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            const titles = { 'dashboard': 'Dashboard', 'ai-insights': 'AI Insights', 'agenda': 'Smart Agenda', 'patients': 'Patients 360°', 'finance': 'Finance & Fonasa', 'whatsapp': 'WhatsApp AI', 'marketing': 'AI Marketing' };
+            document.getElementById('current-view-title').innerText = titles[viewId];
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('active');
+            sidebar.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
         }
-
-        function showView(viewId, el) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            const titles = {
-                'dashboard': 'Dashboard',
-                'agenda': 'Agenda Médica',
-                'pacientes': 'Pacientes',
-                'finanzas': 'Finanzas & Fonasa',
-                'whatsapp': 'WhatsApp Bot'
-            };
-            document.getElementById('view-title').innerText = titles[viewId];
-            if (window.innerWidth < 1024) toggleSidebar();
-        }
-
         window.onload = function() {
-            const ctx = document.getElementById('mainChart').getContext('2d');
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(59, 104, 245, 0.2)');
+            gradient.addColorStop(1, 'rgba(59, 104, 245, 0)');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
-                    datasets: [{
-                        label: 'Pacientes',
-                        data: [12, 19, 15, 25, 22, 10],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 0
-                    }]
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{ label: 'Clinical Performance', data: [65, 78, 72, 95, 88, 60, 45], borderColor: '#3b68f5', borderWidth: 3, fill: true, backgroundColor: gradient, tension: 0.4 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { display: false },
-                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } }
             });
         };
     </script>
