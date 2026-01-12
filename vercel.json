@@ -1,0 +1,1 @@
+{"name": "medical-hub", "rewrites": [{"source": "/(.*)", "destination": "/index.html"}]}
